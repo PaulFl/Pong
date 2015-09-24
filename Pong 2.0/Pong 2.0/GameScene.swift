@@ -149,6 +149,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         player1.remoteSpeed = CGFloat(theFinalValue)
                         values.removeAll()
                         isNegative = false
+                    } else if input!.containsString("b"){
+                        var theFinalValue = Int()
+                        switch values.count {
+                        case 3:
+                            theFinalValue = values[0] * 100 + values[1] * 10 + values[2]
+                        case 2:
+                            theFinalValue = values[0] * 10 + values[1]
+                        case 1:
+                            theFinalValue = values[0]
+                        default: break
+                        }
+                        if isNegative {
+                            theFinalValue = -theFinalValue
+                        }
+                        player2.remoteSpeed = CGFloat(theFinalValue)
+                        values.removeAll()
+                        isNegative = false
                     } else if input!.containsString("-") {
                         isNegative = true
                     } else {
