@@ -10,6 +10,9 @@ import SpriteKit
 
 class GameScene: SKScene, AnalogStickProtocol {
     let moveAnalogStick: AnalogStick = AnalogStick(thumbImage: UIImage(named: "Thumb"), bgImage: UIImage(named: "Background"))
+    var playerSelection = SKSpriteNode(imageNamed: "Player1")
+    
+    var selectedPlayer = 1
     
     override func didMoveToView(view: SKView) {
         //Connect to remote serv
@@ -82,6 +85,10 @@ class GameScene: SKScene, AnalogStickProtocol {
         self.addChild(down)
         
         //PlayerSelection
+        playerSelection.position.x = self.size.width/2 - playerSelection.size.height
+        playerSelection.position.y = self.size.height - 2*playerSelection.size.height
+        playerSelection.name = "playerSelection"
+        self.addChild(playerSelection)
         
     }
     
@@ -97,17 +104,31 @@ class GameScene: SKScene, AnalogStickProtocol {
         let location = touches.first?.locationInNode(self)
         let node = self.nodeAtPoint(location!)
         if let _ = node.name {
-            node.alpha = 1
-            sendData(node.name!)
+            if node.name != playerSelection.name {
+                node.alpha = 1
+                sendData(node.name!)
+            } else if node.name == playerSelection.name {
+                if selectedPlayer == 1 {
+                    selectedPlayer = 2
+                } else {
+                    selectedPlayer = 1
+                }
+                node.alpha = 1
+                playerSelection.texture = SKTexture(imageNamed: "Player\(selectedPlayer)")
+            }
         }
     }
-    
+
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
     }
     
     func sendData(var string: String) {
-        string += "a"
+        if selectedPlayer == 1 {
+            string += "a"
+        } else {
+            string += "b"
+        }
         let data = string.dataUsingEncoding(NSUTF8StringEncoding)
         if outputStream.write(UnsafePointer<UInt8>(data!.bytes), maxLength: data!.length) == -1 {
             let error = outputStream.streamError?.description
@@ -116,10 +137,9 @@ class GameScene: SKScene, AnalogStickProtocol {
     }
     
     func moveAnalogStick(analogStick: AnalogStick, velocity: CGPoint, angularVelocity: Float) {
-            if analogStick.isEqual(moveAnalogStick) {
-                let ySpeed: Int = Int(velocity.y) * 5
-                print(ySpeed)
-                sendData(String(ySpeed))
-            }
+        if analogStick.isEqual(moveAnalogStick) {
+            let ySpeed: Int = Int(velocity.y) * 5
+            sendData(String(ySpeed))
+        }
     }
 }
