@@ -21,16 +21,16 @@ class Button: SKShapeNode {
     init(rectOfSize: CGSize, label:String) {
         self.labelText = label
         super.init()
-        self.path = CGPathCreateWithRoundedRect(CGRect(origin: CGPoint.zero, size: rectOfSize), rectOfSize.width / 8, rectOfSize.height / 2, nil)
-        self.fillColor = NSColor.blackColor()
-        self.strokeColor = NSColor.whiteColor()
+        self.path = CGPath(roundedRect: CGRect(origin: CGPoint.zero, size: rectOfSize), cornerWidth: rectOfSize.width / 8, cornerHeight: rectOfSize.height / 2, transform: nil)
+        self.fillColor = NSColor.black
+        self.strokeColor = NSColor.white
         self.lineWidth = 2.7
         
         self.label = SKLabelNode(text: labelText)
         self.label.fontName = "SFUIText-Ultralight"
         self.label.fontSize = 37
-        self.label.horizontalAlignmentMode = .Center
-        self.label.verticalAlignmentMode = .Center
+        self.label.horizontalAlignmentMode = .center
+        self.label.verticalAlignmentMode = .center
         self.label.position.x = self.frame.size.width / 2
         self.label.position.y = rectOfSize.height / 2
         self.label.name = labelText
@@ -41,16 +41,16 @@ class Button: SKShapeNode {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func selected(selected: Bool) {
+    func selected(_ selected: Bool) {
         self.selected = selected
         if selected {
-            label.fontColor = NSColor.blackColor()
-            self.fillColor = NSColor.whiteColor()
-            self.strokeColor = NSColor.blackColor()
+            label.fontColor = NSColor.black
+            self.fillColor = NSColor.white
+            self.strokeColor = NSColor.black
         } else {
-            label.fontColor = NSColor.whiteColor()
-            self.fillColor = NSColor.blackColor()
-            self.strokeColor = NSColor.whiteColor()
+            label.fontColor = NSColor.white
+            self.fillColor = NSColor.black
+            self.strokeColor = NSColor.white
         }
     }
 }

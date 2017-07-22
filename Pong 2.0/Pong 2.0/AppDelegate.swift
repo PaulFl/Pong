@@ -10,11 +10,11 @@
 import Cocoa
 import SpriteKit
 
-let serverAddress: CFString = "localhost"
+let serverAddress: CFString = "localhost" as CFString
 let serverPort: UInt32 = 5556
 
-var inputStream: NSInputStream!
-var outputStream: NSOutputStream!
+var inputStream: InputStream!
+var outputStream: OutputStream!
 var readStream:  Unmanaged<CFReadStream>?
 var writeStream: Unmanaged<CFWriteStream>?
 
@@ -24,14 +24,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var window: NSWindow!
     @IBOutlet weak var skView: SKView!
     
-    func applicationDidFinishLaunching(aNotification: NSNotification) {
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
         //Connect to remote serv
         CFStreamCreatePairWithSocketToHost(nil, serverAddress, serverPort, &readStream, &writeStream)
         inputStream = readStream!.takeRetainedValue()
         outputStream = writeStream!.takeRetainedValue()
         
-        inputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
-        outputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+        inputStream.schedule(in: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
+        outputStream.schedule(in: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
         
         inputStream.open()
         outputStream.open()
@@ -39,7 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         /* Pick a size for the scene */
         let scene = MenuScene(size: skView.bounds.size)
         /* Set the scale mode to scale to fit the window */
-        scene.scaleMode = .AspectFill
+        scene.scaleMode = .aspectFill
         
         self.skView!.presentScene(scene)
         
@@ -52,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.acceptsMouseMovedEvents = true
     }
     
-    func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication) -> Bool {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
     }
 }

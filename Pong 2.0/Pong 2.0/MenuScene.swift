@@ -14,8 +14,8 @@ class MenuScene: SKScene {
     var points11 = Button()
     var points21 = Button()
     
-    override func didMoveToView(view: SKView) {
-        self.backgroundColor = NSColor.whiteColor()
+    override func didMove(to view: SKView) {
+        self.backgroundColor = NSColor.white
         
         //Setup buttons
         points11 = Button(rectOfSize: buttonSize, label: "11 points")
@@ -32,7 +32,7 @@ class MenuScene: SKScene {
         //Setup label
         let titleLabel = SKLabelNode(text: "Pong 2.0")
         titleLabel.fontSize = 80
-        titleLabel.fontColor = NSColor.blackColor()
+        titleLabel.fontColor = NSColor.black
         titleLabel.position = CGPoint(x: self.frame.size.width / 2, y: self.frame.size.height / 2 + titleLabel.frame.size.height)
         
         addChild(points11)
@@ -40,9 +40,9 @@ class MenuScene: SKScene {
         addChild(titleLabel)
     }
     
-    override func mouseMoved(theEvent: NSEvent) {
-        let location = theEvent.locationInNode(self)
-        let node = self.nodeAtPoint(location)
+    override func mouseMoved(with theEvent: NSEvent) {
+        let location = theEvent.location(in: self)
+        let node = self.atPoint(location)
         if let name = node.name {
             if name == points11.name && !points11.selected {
                 points11.selected(true)
@@ -58,10 +58,10 @@ class MenuScene: SKScene {
         }
     }
     
-    override func mouseUp(theEvent: NSEvent) {
+    override func mouseUp(with theEvent: NSEvent) {
         var points: Int?
-        let location = theEvent.locationInNode(self)
-        let node = self.nodeAtPoint(location)
+        let location = theEvent.location(in: self)
+        let node = self.atPoint(location)
         if let _ = node.name {
             if node.name == points11.name {
                 points = 11
@@ -72,20 +72,20 @@ class MenuScene: SKScene {
         }
     }
     
-    override func update(currentTime: NSTimeInterval) {
+    override func update(_ currentTime: TimeInterval) {
         while (inputStream.hasBytesAvailable){
-            var buffer = [UInt8](count: 4096, repeatedValue: 0)
+            var buffer = [UInt8](repeating: 0, count: 4096)
             let len = inputStream.read(&buffer, maxLength: buffer.count)
             if(len > 0){
-                let input = NSString(bytes: &buffer, length: buffer.count, encoding: NSUTF8StringEncoding)
+                let input = NSString(bytes: &buffer, length: buffer.count, encoding: String.Encoding.utf8.rawValue)
                 if (input != "" && input != nil){
-                    if input!.containsString("left") {
+                    if input!.contains("left") {
                         points11.selected(true)
                         points21.selected(false)
-                    } else if input!.containsString("right") {
+                    } else if input!.contains("right") {
                         points11.selected(false)
                         points21.selected(true)
-                    } else if input!.containsString("enter") {
+                    } else if input!.contains("enter") {
                         if points11.selected {
                             launchGame(11)
                         } else if points21.selected {
@@ -97,9 +97,9 @@ class MenuScene: SKScene {
         }
     }
     
-    func launchGame(points: Int) {
+    func launchGame(_ points: Int) {
         let scene = GameScene(size: self.size, matchLenght: points)
-        scene.scaleMode = .AspectFill
-        self.view?.presentScene(scene, transition: SKTransition.fadeWithDuration(0.6))
+        scene.scaleMode = .aspectFill
+        self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.6))
     }
 }

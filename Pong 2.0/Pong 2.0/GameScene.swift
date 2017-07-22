@@ -7,6 +7,30 @@
 //
 
 import SpriteKit
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 let racketSize = CGSize(width: 30, height: 135)
 let ballRadius: CGFloat = 13
@@ -42,8 +66,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func didMoveToView(view: SKView) {
-        self.backgroundColor = NSColor.whiteColor()
+    override func didMove(to view: SKView) {
+        self.backgroundColor = NSColor.white
         
         //Add players and ball to the scene
         addChild(player1)
@@ -52,16 +76,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //Create score label and add it to the scene
         scoreLabel.text = "\(player1.score) | \(player2.score)"
-        scoreLabel.verticalAlignmentMode = .Center
+        scoreLabel.verticalAlignmentMode = .center
         scoreLabel.position = CGPoint(x: self.size.width/2, y: self.size.height - scoreLabel.frame.size.height)
-        scoreLabel.fontColor = NSColor.blackColor()
+        scoreLabel.fontColor = NSColor.black
         scoreLabel.fontSize = 50
         addChild(scoreLabel)
         
         //World physics
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         physicsWorld.contactDelegate = self
-        let borderBody = SKPhysicsBody(edgeLoopFromRect: self.frame)
+        let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         self.physicsBody = borderBody
         self.physicsBody?.friction = 0
         self.physicsBody?.restitution = 1
@@ -70,21 +94,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         newPoint()
     }
     
-    override func mouseDown(theEvent: NSEvent) {
+    override func mouseDown(with theEvent: NSEvent) {
         //Pause & menu buttons coming soon?
         
         //let location = theEvent.locationInNode(self)
     }
     
-    override func keyDown(theEvent: NSEvent) {
+    override func keyDown(with theEvent: NSEvent) {
         handleKeyEvent(theEvent, keyDown: true)
     }
     
-    override func keyUp(theEvent: NSEvent) {
+    override func keyUp(with theEvent: NSEvent) {
         handleKeyEvent(theEvent, keyDown: false)
     }
     
-    override func update(currentTime: CFTimeInterval) {
+    override func update(_ currentTime: TimeInterval) {
         //Create array with the players -> same actions on both players in for loop
         let players = [player1, player2]
         
@@ -93,9 +117,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         for player in players {
             if (player.movingDown != player.movingUp) { //If player is moving (either up or down)
-                if NSDate().timeIntervalSinceReferenceDate - player.pastTime > NSTimeInterval(0.05) { //Racket speed acceleration
-                    player.movingSpeed++
-                    player.pastTime = NSDate().timeIntervalSinceReferenceDate
+                if Date().timeIntervalSinceReferenceDate - player.pastTime > TimeInterval(0.05) { //Racket speed acceleration
+                    player.movingSpeed += 1
+                    player.pastTime = Date().timeIntervalSinceReferenceDate
                 }
                 if player.movingUp {
                     direction = 1
@@ -103,7 +127,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     direction = -1
                 }
                 //Move the racket
-                player.runAction(SKAction.moveByX(0, y: sqrt(player.movingSpeed) * 3 * direction, duration: 0.1))
+                player.run(SKAction.moveBy(x: 0, y: sqrt(player.movingSpeed) * 3 * direction, duration: 0.1))
             }
             //Remote move
             if player.remoteSpeed != 0 {
@@ -114,7 +138,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     remoteDirection = -1
                 }
                 let remoteSpeed = CGFloat(abs(player.remoteSpeed)) / CGFloat(100)
-                player.runAction(SKAction.moveByX(0, y: sqrt(remoteSpeed) * 3 * CGFloat(remoteDirection), duration: 0.1))
+                player.run(SKAction.moveBy(x: 0, y: sqrt(remoteSpeed) * 3 * CGFloat(remoteDirection), duration: 0.1))
             }
             
             //Prevent the player from going out of the screen
@@ -127,12 +151,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var values = [Int]()
         var isNegative = false
         while (inputStream.hasBytesAvailable){
-            var buffer = [UInt8](count: sizeof(Int), repeatedValue: 0)
+            var buffer = [UInt8](repeating: 0, count: MemoryLayout<Int>.size)
             let len = inputStream.read(&buffer, maxLength: 1)
             if(len > 0){
-                let input = NSString(bytes: &buffer, length: buffer.count, encoding: NSUTF8StringEncoding)
+                let input = NSString(bytes: &buffer, length: buffer.count, encoding: String.Encoding.utf8.rawValue)
                 if (input != nil){
-                    if input!.containsString("a") {
+                    if input!.contains("a") {
                         var theFinalValue = Int()
                         switch values.count {
                         case 3:
@@ -149,7 +173,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         player1.remoteSpeed = CGFloat(theFinalValue)
                         values.removeAll()
                         isNegative = false
-                    } else if input!.containsString("b"){
+                    } else if input!.contains("b"){
                         var theFinalValue = Int()
                         switch values.count {
                         case 3:
@@ -166,7 +190,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         player2.remoteSpeed = CGFloat(theFinalValue)
                         values.removeAll()
                         isNegative = false
-                    } else if input!.containsString("-") {
+                    } else if input!.contains("-") {
                         isNegative = true
                     } else {
                         values.append(input!.integerValue)
@@ -176,7 +200,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func handleKeyEvent(event:NSEvent, keyDown:Bool) {
+    func handleKeyEvent(_ event:NSEvent, keyDown:Bool) {
         //Get the key
         if let key = event.charactersIgnoringModifiers?.unicodeScalars.first!.value {
             //Get racket direction and reset speed if direction changed
@@ -206,7 +230,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func keepPlayerInScreen(player: Racket) {
+    func keepPlayerInScreen(_ player: Racket) {
         if player.position.y > self.size.height - player.frame.size.height {
             player.position.y = self.size.height - player.frame.size.height
             player.movingSpeed = 0
@@ -218,20 +242,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func isPointFinished() {
         if ball.position.x < 10 {
-            player2.score++
+            player2.score += 1
             if player2.score == numberOfPoints {
                 let scene = EndMenuScene(size: self.size, winPlayer: 2)
-                scene.scaleMode = .AspectFill
-                self.view?.presentScene(scene, transition: SKTransition.fadeWithDuration(0.6))
+                scene.scaleMode = .aspectFill
+                self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.6))
                 
             }
             newPoint()
         } else if ball.position.x + ball.frame.size.width > self.size.width - 10 {
-            player1.score++
+            player1.score += 1
             if player1.score == numberOfPoints {
                 let scene = EndMenuScene(size: self.size, winPlayer: 1)
-                scene.scaleMode = .AspectFill
-                self.view?.presentScene(scene, transition: SKTransition.fadeWithDuration(0.6))
+                scene.scaleMode = .aspectFill
+                self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.6))
             }
             newPoint()
         }
@@ -253,7 +277,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 velocity.dx = 500
                 velocity.dy = 0
                 //If ball is centered, then accelerate the ball
-                ball.movingSpeed++
+                ball.movingSpeed += 1
             } else if ballXPositionInRacket < 4/5 {
                 velocity.dx = 357.14
                 velocity.dy = 214.28
@@ -272,7 +296,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else if ballXPositionInRacket < 3/5 {
                 velocity.dx = -500
                 velocity.dy = 0
-                ball.movingSpeed++
+                ball.movingSpeed += 1
             } else if ballXPositionInRacket < 4/5 {
                 velocity.dx = -357.14
                 velocity.dy = 214.28
@@ -287,7 +311,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.velocity.dy *= sqrt(ball.movingSpeed)/1.4
     }
     
-    func didBeginContact(contact: SKPhysicsContact) {
+    func didBegin(_ contact: SKPhysicsContact) {
         var firstBody: SKPhysicsBody
         var secondBody: SKPhysicsBody
         if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {

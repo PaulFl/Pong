@@ -14,9 +14,9 @@ class Ball: SKShapeNode {
     
     init(circleOfRadius: CGFloat) {
         super.init()
-        self.path = CGPathCreateWithEllipseInRect(CGRect(origin: CGPoint.zero, size: CGSize(width: circleOfRadius * 2, height: circleOfRadius * 2)), nil)
-        self.fillColor = NSColor.blackColor()
-        self.strokeColor = NSColor.blackColor()
+        self.path = CGPath(ellipseIn: CGRect(origin: CGPoint.zero, size: CGSize(width: circleOfRadius * 2, height: circleOfRadius * 2)), transform: nil)
+        self.fillColor = NSColor.black
+        self.strokeColor = NSColor.black
 
         self.physicsBody = SKPhysicsBody(circleOfRadius: ballRadius, center: CGPoint(x: self.frame.size.width / 2 - 2, y: self.frame.size.height / 2 - 2))
         self.physicsBody?.allowsRotation = false

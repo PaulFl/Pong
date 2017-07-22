@@ -24,12 +24,12 @@ class EndMenuScene: SKScene {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func didMoveToView(view: SKView) {
-        self.backgroundColor = NSColor.whiteColor()
+    override func didMove(to view: SKView) {
+        self.backgroundColor = NSColor.white
         
         let winPlayerLabel = SKLabelNode(text: "Player \(winPlayer) won !")
         winPlayerLabel.fontSize = 50
-        winPlayerLabel.fontColor = NSColor.blackColor()
+        winPlayerLabel.fontColor = NSColor.black
         winPlayerLabel.position.x = self.size.width / 2
         winPlayerLabel.position.y = self.size.height - winPlayerLabel.frame.size.height * 3
         
@@ -52,9 +52,9 @@ class EndMenuScene: SKScene {
         addChild(winPlayerLabel)
     }
     
-    override func mouseMoved(theEvent: NSEvent) {
-        let location = theEvent.locationInNode(self)
-        let node = self.nodeAtPoint(location)
+    override func mouseMoved(with theEvent: NSEvent) {
+        let location = theEvent.location(in: self)
+        let node = self.atPoint(location)
         if let name = node.name {
             if name == newGameButton.name && !newGameButton.selected {
                 newGameButton.selected(true)
@@ -70,38 +70,38 @@ class EndMenuScene: SKScene {
         }
     }
     
-    override func mouseUp(theEvent: NSEvent) {
-        let location = theEvent.locationInNode(self)
-        let node = self.nodeAtPoint(location)
+    override func mouseUp(with theEvent: NSEvent) {
+        let location = theEvent.location(in: self)
+        let node = self.atPoint(location)
         if let _ = node.name {
             if node.name == newGameButton.name {
                 let scene = MenuScene(size: self.size)
-                scene.scaleMode = .AspectFill
-                self.view?.presentScene(scene, transition: SKTransition.fadeWithDuration(0.6))
+                scene.scaleMode = .aspectFill
+                self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.6))
             } else if node.name == endGameButton.name {
                 exit(EXIT_SUCCESS)
             }
         }
     }
     
-    override func update(currentTime: NSTimeInterval) {
+    override func update(_ currentTime: TimeInterval) {
         while (inputStream.hasBytesAvailable){
-            var buffer = [UInt8](count: 4096, repeatedValue: 0)
+            var buffer = [UInt8](repeating: 0, count: 4096)
             let len = inputStream.read(&buffer, maxLength: buffer.count)
             if(len > 0){
-                let input = NSString(bytes: &buffer, length: buffer.count, encoding: NSUTF8StringEncoding)
+                let input = NSString(bytes: &buffer, length: buffer.count, encoding: String.Encoding.utf8.rawValue)
                 if (input != "" && input != nil){
-                    if input!.containsString("up") {
+                    if input!.contains("up") {
                         newGameButton.selected(true)
                         endGameButton.selected(false)
-                    } else if input!.containsString("down") {
+                    } else if input!.contains("down") {
                         newGameButton.selected(false)
                         endGameButton.selected(true)
-                    } else if input!.containsString("enter") {
+                    } else if input!.contains("enter") {
                         if newGameButton.selected {
                             let scene = MenuScene(size: self.size)
-                            scene.scaleMode = .AspectFill
-                            self.view?.presentScene(scene, transition: SKTransition.fadeWithDuration(0.6))
+                            scene.scaleMode = .aspectFill
+                            self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.6))
                         } else if endGameButton.selected {
                             exit(EXIT_SUCCESS)
                         }
