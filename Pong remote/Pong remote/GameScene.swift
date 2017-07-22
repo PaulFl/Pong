@@ -14,20 +14,20 @@ class GameScene: SKScene, AnalogStickProtocol {
     
     var selectedPlayer = 1
     
-    override func didMoveToView(view: SKView) {
+    override func didMove(to view: SKView) {
         //Connect to remote serv
         CFStreamCreatePairWithSocketToHost(nil, serverAddress, serverPort, &readStream, &writeStream)
         inputStream = readStream!.takeRetainedValue()
         outputStream = writeStream!.takeRetainedValue()
         
-        inputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
-        outputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+        inputStream.schedule(in: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
+        outputStream.schedule(in: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
         
         inputStream.open()
         outputStream.open()
         
         
-        self.backgroundColor = SKColor.whiteColor()
+        self.backgroundColor = SKColor.white
         
         //Joystick
         let bgDiametr: CGFloat = 250
@@ -92,17 +92,17 @@ class GameScene: SKScene, AnalogStickProtocol {
         
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        let location = touches.first?.locationInNode(self)
-        let node = self.nodeAtPoint(location!)
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let location = touches.first?.location(in: self)
+        let node = self.atPoint(location!)
         if let _ = node.name {
             node.alpha = 0.5
         }
     }
     
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        let location = touches.first?.locationInNode(self)
-        let node = self.nodeAtPoint(location!)
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let location = touches.first?.location(in: self)
+        let node = self.atPoint(location!)
         if let _ = node.name {
             if node.name != playerSelection.name {
                 node.alpha = 1
@@ -119,24 +119,23 @@ class GameScene: SKScene, AnalogStickProtocol {
         }
     }
 
-    override func update(currentTime: CFTimeInterval) {
+    override func update(_ currentTime: TimeInterval) {
         /* Called before each frame is rendered */
     }
     
-    func sendData(var string: String) {
+    func sendData(_ string: String) {
+        var string = string
         if selectedPlayer == 1 {
             string += "a"
         } else {
             string += "b"
         }
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding)
-        if outputStream.write(UnsafePointer<UInt8>(data!.bytes), maxLength: data!.length) == -1 {
-            let error = outputStream.streamError?.description
-            print(error)
+        let data = string.data(using: String.Encoding.utf8)
+        if outputStream.write((data! as NSData).bytes.bindMemory(to: UInt8.self, capacity: data!.count), maxLength: data!.count) == -1 {
         }
     }
     
-    func moveAnalogStick(analogStick: AnalogStick, velocity: CGPoint, angularVelocity: Float) {
+    func moveAnalogStick(_ analogStick: AnalogStick, velocity: CGPoint, angularVelocity: Float) {
         if analogStick.isEqual(moveAnalogStick) {
             let ySpeed: Int = Int(velocity.y) * 5
             sendData(String(ySpeed))
