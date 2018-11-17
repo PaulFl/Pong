@@ -205,12 +205,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let key = event.charactersIgnoringModifiers?.unicodeScalars.first!.value {
             //Get racket direction and reset speed if direction changed
             switch Int(key) {
-            case NSUpArrowFunctionKey:
+            case NSEvent.SpecialKey.upArrow.rawValue:
                 player2.movingUp = keyDown
                 if !keyDown {
                     player2.movingSpeed = 2
                 }
-            case NSDownArrowFunctionKey:
+            case NSEvent.SpecialKey.downArrow.rawValue:
                 player2.movingDown = keyDown
                 if !keyDown {
                     player2.movingSpeed = 2
