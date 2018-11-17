@@ -44,11 +44,11 @@ class AnalogStick: SKNode {
             velocityLoop = nil
             if delegate != nil {
                 velocityLoop = CADisplayLink(target: self, selector: #selector(AnalogStick.update))
-                velocityLoop?.add(to: RunLoop.current, forMode: RunLoopMode.commonModes)
+                velocityLoop?.add(to: RunLoop.current, forMode: RunLoop.Mode.common)
             }
         }
     }
-    func update() {
+    @objc func update() {
         if isTracking {
            delegate?.moveAnalogStick(self, velocity: self.velocity, angularVelocity: self.angularVelocity)
             previousIsTracking = true

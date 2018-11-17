@@ -20,8 +20,8 @@ class GameScene: SKScene, AnalogStickProtocol {
         inputStream = readStream!.takeRetainedValue()
         outputStream = writeStream!.takeRetainedValue()
         
-        inputStream.schedule(in: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
-        outputStream.schedule(in: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
+        inputStream.schedule(in: RunLoop.current, forMode: RunLoop.Mode.default)
+        outputStream.schedule(in: RunLoop.current, forMode: RunLoop.Mode.default)
         
         inputStream.open()
         outputStream.open()
